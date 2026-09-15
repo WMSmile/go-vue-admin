@@ -13,6 +13,11 @@ export const deleteUser = (id) => request({ url: `/users/${id}`, method: 'delete
 
 export const listRoles = () => request({ url: '/roles' })
 export const createRole = (d) => request({ url: '/roles', method: 'post', data: d })
+export const updateRole = (id, d) => request({ url: `/roles/${id}`, method: 'put', data: d })
+export const deleteRole = (id) => request({ url: `/roles/${id}`, method: 'delete' })
 export const assignMenus = (d) => request({ url: '/roles/menus', method: 'post', data: d })
 
 export const listMenus = () => request({ url: '/menus' })
+export const createMenu = (d) => request({ url: '/menus', method: 'post', data: d })
+export const updateMenu = (id, d) => request({ url: `/menus/${id}`, method: 'put', data: d })
+export const deleteMenu = (id) => request({ url: `/menus/${id}`, method: 'delete' })

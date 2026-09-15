@@ -13,7 +13,14 @@ const routes = [
     path: '/',
     name: 'Layout',
     component: Layout,
-    children: []
+    children: [
+      {
+        path: 'profile',
+        name: 'Profile',
+        component: () => import('@/views/system/profile/index.vue'),
+        meta: { title: '个人中心' }
+      }
+    ]
   },
   {
     path: '/404',

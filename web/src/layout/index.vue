@@ -8,10 +8,14 @@
       <el-header class="header">
         <span class="title">管理后台</span>
         <el-dropdown @command="onCommand">
-          <span class="user">{{ userStore.userInfo?.username || '用户' }}</span>
+          <span class="user-info">
+            <el-avatar :size="32" class="avatar">{{ initial }}</el-avatar>
+            <span class="username">{{ userStore.userInfo?.username || '用户' }}</span>
+          </span>
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item command="logout">退出登录</el-dropdown-item>
+              <el-dropdown-item command="profile">个人中心</el-dropdown-item>
+              <el-dropdown-item command="logout" divided>退出登录</el-dropdown-item>
             </el-dropdown-menu>
           </template>
         </el-dropdown>
@@ -32,8 +36,12 @@ const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
 
+const initial = (userStore.userInfo?.username || '?').charAt(0).toUpperCase()
+
 function onCommand(cmd) {
-  if (cmd === 'logout') {
+  if (cmd === 'profile') {
+    router.push('/profile')
+  } else if (cmd === 'logout') {
     userStore.logout()
     router.push('/login')
   }
@@ -45,5 +53,7 @@ function onCommand(cmd) {
 .sidebar { background: #001529; color: #fff; overflow-y: auto; }
 .logo { height: 56px; line-height: 56px; text-align: center; font-weight: 600; color: #fff; }
 .header { display: flex; align-items: center; justify-content: space-between; background: #fff; border-bottom: 1px solid #eee; }
-.user { cursor: pointer; }
+.user-info { display: flex; align-items: center; gap: 8px; cursor: pointer; outline: none; }
+.user-info .avatar { background: #409eff; }
+.user-info .username { font-size: 14px; }
 </style>
