@@ -1,0 +1,16 @@
+server:
+  port: 8080
+  mode: debug          # debug / release
+
+jwt:
+  secret: "go-vue-admin-secret-change-me"
+  expire: 72h
+
+database:
+  driver: sqlite       # sqlite | mysql
+  dsn: "./data/app.db" # sqlite file path
+  # mysql dsn example:
+  # dsn: "root:123456@tcp(127.0.0.1:3306)/go_vue_admin?charset=utf8mb4&parseTime=True&loc=Local"
+
+casbin:
+  model: "./config/rbac_model.conf"
