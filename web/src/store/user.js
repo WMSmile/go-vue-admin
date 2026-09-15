@@ -44,6 +44,19 @@ function firstLeaf(menus, parent = '') {
   return null
 }
 
+// Prefer the dashboard (top-level page) as the landing route after login.
+function findDashboard(menus, parent = '') {
+  for (const m of menus || []) {
+    const path = m.path && m.path.startsWith('/') ? m.path : parent ? `${parent}/${m.path}` : m.path
+    if (m.type === 2 && (m.name === 'Dashboard' || m.path === '/dashboard')) return path
+    if (m.children && m.children.length) {
+      const p = findDashboard(m.children, path)
+      if (p) return p
+    }
+  }
+  return null
+}
+
 export const useUserStore = defineStore('user', {
   state: () => ({
     token: '',
@@ -65,7 +78,7 @@ export const useUserStore = defineStore('user', {
       localStorage.setItem('permissions', JSON.stringify(data.permissions))
       localStorage.setItem('userInfo', JSON.stringify(data.user))
       genRoutes(data.menus).forEach((r) => router.addRoute('Layout', r))
-      const fp = firstLeaf(data.menus)
+      const fp = findDashboard(data.menus) || firstLeaf(data.menus)
       try {
         await router.push(fp || '/')
       } catch (e) {

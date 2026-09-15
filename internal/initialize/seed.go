@@ -37,7 +37,18 @@ func Seed() {
 
 	// menu tree
 	createMenu := func(m models.Menu) models.Menu {
-		global.DB.Where(models.Menu{Name: m.Name}).FirstOrCreate(&m)
+		var exist models.Menu
+		if err := global.DB.Where(models.Menu{Name: m.Name}).First(&exist).Error; err != nil {
+			global.DB.Create(&m)
+			return m
+		}
+		// update in place so structural changes (e.g. ParentID/Path) apply on re-seed
+		global.DB.Model(&exist).Updates(map[string]interface{}{
+			"title": m.Title, "icon": m.Icon, "path": m.Path, "component": m.Component,
+			"sort": m.Sort, "type": m.Type, "permission": m.Permission, "api": m.Api,
+			"method": m.Method, "parent_id": m.ParentID, "status": m.Status,
+		})
+		m.ID = exist.ID
 		return m
 	}
 	sys := createMenu(models.Menu{Name: "System", Title: "系统管理", Icon: "setting", Path: "/system", Component: "Layout", Sort: 1, Type: models.MenuTypeCatalog})
@@ -48,8 +59,10 @@ func Seed() {
 	createMenu(models.Menu{Name: "Role", Title: "角色管理", Icon: "role", Path: "role", Component: "system/role/index", Sort: 2, Type: models.MenuTypeMenu, Api: "/api/v1/roles", Method: "GET", ParentID: sys.ID})
 	createMenu(models.Menu{Name: "Menu", Title: "菜单管理", Icon: "menu", Path: "menu", Component: "system/menu/index", Sort: 3, Type: models.MenuTypeMenu, Api: "/api/v1/menus", Method: "GET", ParentID: sys.ID})
 
-	mon := createMenu(models.Menu{Name: "Monitor", Title: "系统监控", Icon: "monitor", Path: "/monitor", Component: "Layout", Sort: 2, Type: models.MenuTypeCatalog})
-	dash := createMenu(models.Menu{Name: "Dashboard", Title: "仪表盘", Icon: "dashboard", Path: "dashboard", Component: "monitor/dashboard/index", Sort: 1, Type: models.MenuTypeMenu, Api: "/api/v1/dashboard", Method: "GET", ParentID: mon.ID})
+	// Dashboard: a top-level page shown directly after login
+	dash := createMenu(models.Menu{Name: "Dashboard", Title: "仪表盘", Icon: "dashboard", Path: "/dashboard", Component: "monitor/dashboard/index", Sort: 0, Type: models.MenuTypeMenu, Api: "/api/v1/dashboard", Method: "GET", ParentID: 0})
+	// Monitor: a catalog container for other monitoring functions (logs, online users, etc.)
+	mon := createMenu(models.Menu{Name: "Monitor", Title: "系统监控", Icon: "monitor", Path: "/monitor", Component: "Layout", Sort: 3, Type: models.MenuTypeCatalog})
 
 	// link menus to admin
 	var allMenus []models.Menu
