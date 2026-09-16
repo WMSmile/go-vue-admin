@@ -77,6 +77,22 @@ func Seed() {
 	createMenu(models.Menu{Name: "TaskEdit", Title: "编辑任务", Permission: "task:edit", Api: "/api/v1/tasks/*", Method: "PUT", Type: models.MenuTypeButton, ParentID: taskM.ID})
 	createMenu(models.Menu{Name: "TaskDel", Title: "删除任务", Permission: "task:del", Api: "/api/v1/tasks/*", Method: "DELETE", Type: models.MenuTypeButton, ParentID: taskM.ID})
 	createMenu(models.Menu{Name: "TaskRun", Title: "执行任务", Permission: "task:run", Api: "/api/v1/tasks/*/run", Method: "POST", Type: models.MenuTypeButton, ParentID: taskM.ID})
+	configM := createMenu(models.Menu{Name: "Config", Title: "参数设置", Icon: "SetUp", Path: "config", Component: "system/config/index", Sort: 7, Type: models.MenuTypeMenu, Api: "/api/v1/configs", Method: "GET", ParentID: sys.ID})
+	createMenu(models.Menu{Name: "ConfigAdd", Title: "新增参数", Permission: "config:add", Api: "/api/v1/configs", Method: "POST", Type: models.MenuTypeButton, ParentID: configM.ID})
+	createMenu(models.Menu{Name: "ConfigEdit", Title: "编辑参数", Permission: "config:edit", Api: "/api/v1/configs/*", Method: "PUT", Type: models.MenuTypeButton, ParentID: configM.ID})
+	createMenu(models.Menu{Name: "ConfigDel", Title: "删除参数", Permission: "config:del", Api: "/api/v1/configs/*", Method: "DELETE", Type: models.MenuTypeButton, ParentID: configM.ID})
+
+	// seed default system parameters (branding etc.)
+	seedConfig := func(key, value, name, group string, sort int) {
+		var c models.SysConfig
+		if err := global.DB.Where(models.SysConfig{Key: key}).First(&c).Error; err != nil {
+			global.DB.Create(&models.SysConfig{Key: key, Value: value, Name: name, Group: group, Sort: sort, Status: 1})
+		}
+	}
+	seedConfig("site.name", "Go Vue Admin", "系统名称", "基础设置", 1)
+	seedConfig("site.loginTitle", "Go Vue Admin 管理系统", "登录页标题", "基础设置", 2)
+	seedConfig("site.copyright", "© 2026 Go Vue Admin. All Rights Reserved.", "版权信息", "基础设置", 3)
+	seedConfig("site.icp", "", "备案号", "基础设置", 4)
 
 	// Dashboard: a top-level page shown directly after login
 	dash := createMenu(models.Menu{Name: "Dashboard", Title: "仪表盘", Icon: "DataBoard", Path: "/dashboard", Component: "monitor/dashboard/index", Sort: 0, Type: models.MenuTypeMenu, Api: "/api/v1/dashboard", Method: "GET", ParentID: 0})

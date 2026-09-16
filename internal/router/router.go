@@ -31,6 +31,8 @@ func SetupRouter() *gin.Engine {
 	api := r.Group("/api/v1")
 	// public
 	api.POST("/auth/login", controller.Login)
+	// public: branding parameters (site name, copyright, ...) for the login page / footer
+	api.GET("/configs/map", controller.ConfigMap)
 
 	// protected (API-Key or JWT + Casbin double check)
 	auth := api.Group("")
@@ -82,6 +84,11 @@ func SetupRouter() *gin.Engine {
 		auth.POST("/menus", controller.CreateMenu)
 		auth.PUT("/menus/:id", controller.UpdateMenu)
 		auth.DELETE("/menus/:id", controller.DeleteMenu)
+
+		auth.GET("/configs", controller.ListConfigs)
+		auth.POST("/configs", controller.CreateConfig)
+		auth.PUT("/configs/:id", controller.UpdateConfig)
+		auth.DELETE("/configs/:id", controller.DeleteConfig)
 	}
 	return r
 }

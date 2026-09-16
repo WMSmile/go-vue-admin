@@ -1,7 +1,7 @@
 <template>
   <div class="login-container">
     <el-card class="login-card">
-      <h2 class="title">go-vue-admin</h2>
+      <h2 class="title">{{ sysConfig.get('site.loginTitle', 'go-vue-admin') }}</h2>
       <el-form :model="form" label-width="0" @submit.prevent="onLogin">
         <el-form-item>
           <el-input v-model="form.username" placeholder="用户名" size="large" />
@@ -23,9 +23,11 @@ import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { useUserStore } from '@/store/user'
+import { useSysConfigStore } from '@/store/sysConfig'
 
 const router = useRouter()
 const userStore = useUserStore()
+const sysConfig = useSysConfigStore()
 const form = reactive({ username: '', password: '' })
 const loading = ref(false)
 

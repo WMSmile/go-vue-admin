@@ -32,7 +32,7 @@ func InitDB() error {
 		return err
 	}
 
-	if err := global.DB.AutoMigrate(&models.User{}, &models.Role{}, &models.Menu{}, &models.ApiKey{}, &models.OperationLog{}, &models.DictType{}, &models.DictData{}, &models.Task{}, &models.TaskLog{}); err != nil {
+	if err := global.DB.AutoMigrate(&models.User{}, &models.Role{}, &models.Menu{}, &models.ApiKey{}, &models.OperationLog{}, &models.DictType{}, &models.DictData{}, &models.Task{}, &models.TaskLog{}, &models.SysConfig{}); err != nil {
 		return err
 	}
 	log.Printf("database connected (%s)", cfg.Driver)

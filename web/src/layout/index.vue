@@ -1,7 +1,7 @@
 <template>
   <el-container class="app-wrapper">
     <el-aside :width="collapse ? '64px' : '220px'" class="sidebar" :class="{ collapsed: collapse }">
-      <div class="logo">go-vue-admin</div>
+      <div class="logo">{{ sysConfig.get('site.name', 'go-vue-admin') }}</div>
       <Sidebar :collapse="collapse" />
     </el-aside>
     <el-container>
@@ -30,6 +30,10 @@
       <el-main>
         <router-view />
       </el-main>
+      <el-footer class="footer">
+        <span v-if="sysConfig.get('site.copyright')">{{ sysConfig.get('site.copyright') }}</span>
+        <span v-if="sysConfig.get('site.icp')"> | 备案号：{{ sysConfig.get('site.icp') }}</span>
+      </el-footer>
     </el-container>
   </el-container>
 </template>
@@ -38,11 +42,13 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/store/user'
+import { useSysConfigStore } from '@/store/sysConfig'
 import Sidebar from './components/Sidebar.vue'
 import TagsView from './components/TagsView.vue'
 
 const router = useRouter()
 const userStore = useUserStore()
+const sysConfig = useSysConfigStore()
 
 const collapse = ref(false)
 function toggleCollapse() {
@@ -78,6 +84,7 @@ function onCommand(cmd) {
 .sidebar::-webkit-scrollbar { width: 0; height: 0; display: none; }
 .logo { height: 56px; line-height: 56px; text-align: center; font-weight: 600; color: var(--el-text-color-primary, #303133); white-space: nowrap; }
 .sidebar.collapsed .logo { display: none; }
+.footer { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; color: var(--el-text-color-secondary); border-top: 1px solid var(--el-border-color-lighter); background: var(--el-bg-color); }
 html.dark .sidebar { background: #001529; color: #fff; }
 html.dark .logo { color: #fff; }
 html.dark .sidebar .el-menu {

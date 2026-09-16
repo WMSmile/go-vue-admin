@@ -63,9 +63,19 @@ export const useUserStore = defineStore('user', {
     userInfo: null,
     menus: [],
     permissions: [],
-    roles: []
+    roles: [],
+    dynamicRemovers: []
   }),
   actions: {
+    // Register dynamic routes under the Layout route. Idempotent: removes any
+    // previously-registered dynamic routes first so re-applying never duplicates.
+    applyRoutes(menus) {
+      this.dynamicRemovers.forEach((fn) => fn())
+      this.dynamicRemovers = []
+      genRoutes(menus).forEach((r) => {
+        this.dynamicRemovers.push(router.addRoute('Layout', r))
+      })
+    },
     async login(form) {
       const data = await loginApi(form)
       this.token = data.token
@@ -77,7 +87,7 @@ export const useUserStore = defineStore('user', {
       localStorage.setItem('menus', JSON.stringify(data.menus))
       localStorage.setItem('permissions', JSON.stringify(data.permissions))
       localStorage.setItem('userInfo', JSON.stringify(data.user))
-      genRoutes(data.menus).forEach((r) => router.addRoute('Layout', r))
+      this.applyRoutes(data.menus)
       const fp = findDashboard(data.menus) || firstLeaf(data.menus)
       try {
         await router.push(fp || '/')
@@ -86,31 +96,55 @@ export const useUserStore = defineStore('user', {
       }
       return data
     },
-    rehydrate() {
+    async rehydrate() {
       const token = localStorage.getItem('token')
-      const menus = JSON.parse(localStorage.getItem('menus') || '[]')
-      if (token && menus.length) {
-        this.token = token
-        this.menus = menus
-        this.permissions = JSON.parse(localStorage.getItem('permissions') || '[]')
-        this.userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null')
-        this.roles = (this.userInfo?.roles || []).map((r) => r.keyword)
-        genRoutes(menus).forEach((r) => router.addRoute('Layout', r))
+      if (!token) return
+      // restore auth state for immediate render
+      this.token = token
+      this.permissions = JSON.parse(localStorage.getItem('permissions') || '[]')
+      this.userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null')
+      this.roles = (this.userInfo?.roles || []).map((r) => r.keyword)
+
+      const cached = JSON.parse(localStorage.getItem('menus') || '[]')
+      // Always prefer the FRESH server menu tree (so menus added/seeded after the
+      // last login, e.g. 参数设置, are available after a refresh). Fall back to
+      // the cached menu on error so routes still exist and we don't loop.
+      try {
+        const fresh = await getMenuTree()
+        if (Array.isArray(fresh) && fresh.length) {
+          this.menus = fresh
+          localStorage.setItem('menus', JSON.stringify(fresh))
+          this.applyRoutes(fresh)
+          return
+        }
+      } catch (e) {
+        // fall through to cache
       }
-      // refresh the menu tree from the server so icon/structure changes
-      // (e.g. edited in 菜单管理) take effect without forcing a re-login.
-      if (token) {
-        getMenuTree()
-          .then((fresh) => {
-            if (Array.isArray(fresh) && fresh.length) {
-              this.menus = fresh
-              localStorage.setItem('menus', JSON.stringify(fresh))
-            }
-          })
-          .catch(() => {})
+      if (cached.length) {
+        this.menus = cached
+        this.applyRoutes(cached)
+      }
+    },
+    // Synchronously restore auth + register cached routes BEFORE the router is
+    // installed (main.js calls this before app.use(router)), so a page refresh /
+    // deep link (e.g. /system/role) resolves on the very first navigation. The
+    // server menu is then freshened via rehydrate() in main.js.
+    bootstrap() {
+      const token = localStorage.getItem('token')
+      if (!token) return
+      this.token = token
+      this.permissions = JSON.parse(localStorage.getItem('permissions') || '[]')
+      this.userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null')
+      this.roles = (this.userInfo?.roles || []).map((r) => r.keyword)
+      const cached = JSON.parse(localStorage.getItem('menus') || '[]')
+      if (cached.length) {
+        this.menus = cached
+        this.applyRoutes(cached)
       }
     },
     logout() {
+      this.dynamicRemovers.forEach((fn) => fn())
+      this.dynamicRemovers = []
       this.token = ''
       this.userInfo = null
       this.menus = []

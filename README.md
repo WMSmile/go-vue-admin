@@ -23,6 +23,8 @@
 - ✅ **个人设置**：右上角头像下拉「设置」可切换主题（浅色 / 深色 / 跟随系统）
 - ✅ **字典管理**：维护字典类型与字典数据（枚举值），可供下拉、状态等场景复用
 - ✅ **定时任务**：内置无外部依赖的调度器，支持 HTTP / 函数两类任务，含启用/停用、手动执行、执行日志
+- ✅ **标签页（Tag Views）**：内容区顶部标签栏记录已打开页面，可单独关闭；右键菜单支持「关闭当前 / 关闭其他 / 关闭左侧 / 关闭右侧 / 全部关闭」；仪表盘标签固定常驻、不可关闭
+- ✅ **参数设置（系统参数）**：键值型系统参数（站点名称、登录标题、版权信息、备案号等），管理员可在后台随时修改并**前端实时生效**；登录页标题、侧栏 Logo、页脚版权自动读取，无需改代码 / 重新部署
 - ⬜ 代码生成器（预留扩展位）
 
 ## 目录结构
@@ -37,10 +39,10 @@ go-vue-admin/
 │   ├── db/                # GORM 初始化 + 自动迁移
 │   ├── casbin/            # Casbin Enforcer 初始化
 │   ├── global/            # 全局单例（DB / Enforcer / Config）
-│   ├── models/            # User / Role / Menu / ApiKey / OperationLog / DictType / DictData / Task / TaskLog 模型
+│   ├── models/            # User / Role / Menu / ApiKey / OperationLog / DictType / DictData / Task / TaskLog / SysConfig 模型
 │   ├── utils/             # JWT、密码、统一响应
 │   ├── middleware/        # JWT 鉴权、Casbin 鉴权、操作日志
-│   ├── controller/        # 登录、用户、角色、菜单、仪表盘、操作日志、定时任务
+│   ├── controller/        # 登录、用户、角色、菜单、仪表盘、操作日志、定时任务、参数设置
 │   ├── task/              # 定时任务调度器（无外部依赖，解析标准 5 段 cron）
 │   ├── router/            # 路由注册
 │   └── initialize/        # 种子数据（默认角色/管理员/菜单/策略）
@@ -186,6 +188,47 @@ curl -X DELETE http://localhost:8080/api/v1/users/2 -H "X-API-Key: gva_xxxx"
 - 删除单条：`DELETE /api/v1/operation-logs/:id`
 - 清空全部：`DELETE /api/v1/operation-logs`
 
+## 参数设置（系统参数）
+
+系统内置键值型参数表 `sys_config`（模型 `SysConfig`），用于集中管理**展示型 / 品牌型**配置，管理员可在后台随时修改而**无需改动代码或重新部署**。常用于站点名称、登录页标题、版权信息、备案号等。
+
+### 预置参数
+种子数据（`internal/initialize/seed.go`）默认写入以下参数（均启用）：
+
+| 参数键 | 名称 | 用途 |
+| --- | --- | --- |
+| `site.name` | 系统名称 | 侧栏 Logo 文字、`document.title` |
+| `site.loginTitle` | 登录页标题 | 登录页主标题 |
+| `site.copyright` | 版权信息 | 页脚版权 |
+| `site.icp` | 备案号 | 页脚备案号（留空则不显示） |
+
+### 前端消费方式
+- 应用启动时 `main.js` 调用公开接口 `GET /api/v1/configs/map` 拉取 `{key: value}` 映射，存入 Pinia `sysConfig` store 并缓存到 `localStorage`；
+- 登录页、布局侧栏 Logo、页脚均通过 `sysConfig.get(key, 默认值)` 读取，因此修改参数后**刷新页面即生效**。
+
+### 管理页面
+管理员进入「系统管理 → 参数设置」可查看 / 搜索（按键、名称、分组）/ 新增 / 编辑 / 删除参数，按钮受 `config:add / config:edit / config:del` 权限控制（随种子授权给 admin）。
+
+### 接口
+- 公开映射：`GET /api/v1/configs/map` —— 返回所有**启用中**参数的 `{key: value}`（无需登录，供登录页 / 页脚渲染）
+- 列表：`GET /api/v1/configs`（支持 `page`、`pageSize`、`key`、`name`、`group` 参数）
+- 新增：`POST /api/v1/configs`
+- 更新：`PUT /api/v1/configs/:id`（参数键不可改）
+- 删除：`DELETE /api/v1/configs/:id`
+
+> 说明：参数键（`config_key`）唯一；`/configs/map` 为公开接口，仅对外暴露启用中的展示型参数，敏感配置请勿以该表存储。
+
+## 标签页（Tag Views）
+
+内容区顶部提供标签栏，记录当前会话已访问的页面：
+
+- 每个标签显示路由 `meta.title`（后端菜单下发的中文名），当前页高亮；
+- 非固定标签带关闭按钮，关闭当前页时自动跳到相邻标签；
+- **右键菜单**（在任意标签上弹出，自动避免超出视口）支持：关闭当前、关闭其他、关闭左侧、关闭右侧、全部关闭（仅保留固定标签并跳回仪表盘）；
+- 仪表盘（或首个叶子菜单）作为 `affix` 固定标签常驻、不可关闭。
+
+状态由 Pinia `tagsView` store 维护，组件位于 `web/src/layout/components/TagsView.vue`。
+
 ## 接口一览
 
 | 方法 | 路径 | 说明 | 鉴权 |
@@ -221,6 +264,11 @@ curl -X DELETE http://localhost:8080/api/v1/users/2 -H "X-API-Key: gva_xxxx"
 | POST | `/api/v1/tasks/:id/toggle` | 启用/停用任务 | 是 |
 | POST | `/api/v1/tasks/:id/run` | 手动执行一次 | 是 |
 | GET | `/api/v1/task-logs` | 任务执行日志列表 | 是 |
+| GET | `/api/v1/configs/map` | 公开：已启用系统参数的 `{key: value}` 映射 | 否 |
+| GET | `/api/v1/configs` | 参数列表（支持 `key` / `name` / `group` 筛选与分页） | 是 |
+| POST | `/api/v1/configs` | 新增参数（参数键唯一） | 是 |
+| PUT | `/api/v1/configs/:id` | 更新参数（参数键不可改） | 是 |
+| DELETE | `/api/v1/configs/:id` | 删除参数 | 是 |
 
 统一响应格式：
 
@@ -239,4 +287,4 @@ curl -X DELETE http://localhost:8080/api/v1/users/2 -H "X-API-Key: gva_xxxx"
 
 ## TODO（预留扩展）
 
-代码生成器、字典管理、定时任务等内置模块可在 `internal/controller` 与 `web/src/views` 中按现有 CRUD 模式继续扩展。
+代码生成器等可在 `internal/controller` 与 `web/src/views` 中按现有 CRUD 模式继续扩展。字典管理、定时任务、参数设置等内置模块已完成，可作为新功能的参考范本。

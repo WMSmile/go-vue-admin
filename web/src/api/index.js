@@ -46,3 +46,9 @@ export const deleteTask = (id) => request({ url: `/tasks/${id}`, method: 'delete
 export const toggleTask = (id) => request({ url: `/tasks/${id}/toggle`, method: 'post' })
 export const runTask = (id) => request({ url: `/tasks/${id}/run`, method: 'post' })
 export const listTaskLogs = (params) => request({ url: '/task-logs', method: 'get', params })
+
+export const listConfigs = (params) => request({ url: '/configs', method: 'get', params })
+export const createConfig = (d) => request({ url: '/configs', method: 'post', data: d })
+export const updateConfig = (id, d) => request({ url: `/configs/${id}`, method: 'put', data: d })
+export const deleteConfig = (id) => request({ url: `/configs/${id}`, method: 'delete' })
+export const getConfigMap = () => request({ url: '/configs/map', method: 'get' })

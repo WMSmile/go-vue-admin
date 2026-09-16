@@ -139,3 +139,18 @@ type TaskLog struct {
 	DurationMs int64     `json:"durationMs"`
 	CreatedAt  time.Time `json:"createdAt"`
 }
+
+// SysConfig is a key/value system parameter (e.g. site name, copyright).
+// `config_key` is used as the column name to avoid the SQL reserved word `key`.
+type SysConfig struct {
+	ID        uint      `gorm:"primaryKey" json:"id"`
+	Key       string    `gorm:"column:config_key;size:64;uniqueIndex;not null" json:"key"`
+	Value     string    `gorm:"type:text" json:"value"`
+	Name      string    `gorm:"size:128;not null" json:"name"` // display / description
+	Group     string    `gorm:"column:config_group;size:64" json:"group"` // grouping for the UI
+	Sort      int       `gorm:"default:0" json:"sort"`
+	Status    int       `gorm:"default:1" json:"status"` // 1 enabled, 0 disabled
+	Remark    string    `gorm:"size:255" json:"remark"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+}

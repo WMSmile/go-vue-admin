@@ -34,7 +34,11 @@ const routes = [
     component: () => import('@/views/error/404.vue'),
     meta: { public: true }
   },
-  { path: '/:pathMatch(.*)*', redirect: '/404' }
+  // Render the 404 view INLINE for unknown paths instead of redirecting to
+  // /404. A redirect rewrites the address bar to /404, which poisons the URL so
+  // that a later refresh keeps loading /404 even though the real page (e.g.
+  // /system/config) resolves fine once its route is registered.
+  { path: '/:pathMatch(.*)*', name: 'CatchAll', component: () => import('@/views/error/404.vue'), meta: { public: true } }
 ]
 
 const router = createRouter({
@@ -42,17 +46,25 @@ const router = createRouter({
   routes
 })
 
-router.beforeEach((to) => {
+// Dynamic routes are registered in main.js BEFORE the router is installed, so
+// the very first navigation — including refreshes / deep links like
+// /system/role — already sees the full route table. This guard enforces auth
+// and, as a safety net, re-resolves the URL once if it still fell through to
+// the catch-all (e.g. the cached menu lacked the route).
+let catchAllRetried = false
+router.beforeEach(async (to) => {
   const token = localStorage.getItem('token')
-  if (to.meta.public || token) {
-    // re-add dynamic routes after a page refresh
-    if (token) {
-      const store = useUserStore()
-      if (!store.menus.length) store.rehydrate()
-    }
-    return true
+  if (!to.meta.public && !token) return '/login'
+
+  // If we have a token but the target did not match any dynamic route (it hit
+  // the catch-all), the routes weren't ready. Wait for the fresh menu, then
+  // re-navigate to the SAME url so it resolves to the real page.
+  if (token && !catchAllRetried && to.matched.some((r) => r.name === 'CatchAll')) {
+    catchAllRetried = true
+    await useUserStore().rehydrate()
+    return { path: to.path, query: to.query, hash: to.hash, replace: true }
   }
-  return '/login'
+  return true
 })
 
 export default router
