@@ -61,6 +61,16 @@ func SetupRouter() *gin.Engine {
 		auth.GET("/operation-logs", controller.ListOperationLogs)
 		auth.DELETE("/operation-logs/:id", controller.DeleteOperationLog)
 		auth.DELETE("/operation-logs", controller.ClearOperationLogs)
+
+		auth.GET("/dict-types", controller.ListDictTypes)
+		auth.POST("/dict-types", controller.CreateDictType)
+		auth.PUT("/dict-types/:id", controller.UpdateDictType)
+		auth.DELETE("/dict-types/:id", controller.DeleteDictType)
+
+		auth.GET("/dict-data", controller.ListDictData)
+		auth.POST("/dict-data", controller.CreateDictData)
+		auth.PUT("/dict-data/:id", controller.UpdateDictData)
+		auth.DELETE("/dict-data/:id", controller.DeleteDictData)
 		auth.POST("/menus", controller.CreateMenu)
 		auth.PUT("/menus/:id", controller.UpdateMenu)
 		auth.DELETE("/menus/:id", controller.DeleteMenu)

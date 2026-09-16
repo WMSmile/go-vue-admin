@@ -87,3 +87,28 @@ type OperationLog struct {
 	Latency   int64     `json:"latency"` // milliseconds
 	CreatedAt time.Time `json:"createdAt"`
 }
+
+// DictType groups a set of dictionary entries (e.g. gender, order_status).
+type DictType struct {
+	ID        uint      `gorm:"primaryKey" json:"id"`
+	Code      string    `gorm:"size:64;uniqueIndex;not null" json:"code"`
+	Name      string    `gorm:"size:64;not null" json:"name"`
+	Status    int       `gorm:"default:1" json:"status"` // 1 enabled, 0 disabled
+	Remark    string    `gorm:"size:255" json:"remark"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+// DictData is a single key/value entry belonging to a DictType.
+type DictData struct {
+	ID        uint      `gorm:"primaryKey" json:"id"`
+	TypeID    uint      `gorm:"index" json:"typeId"`
+	TypeCode  string    `gorm:"size:64;index" json:"typeCode"`
+	Label     string    `gorm:"size:128" json:"label"`
+	Value     string    `gorm:"size:128" json:"value"`
+	Sort      int       `gorm:"default:0" json:"sort"`
+	Status    int       `gorm:"default:1" json:"status"` // 1 enabled, 0 disabled
+	Remark    string    `gorm:"size:255" json:"remark"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+}

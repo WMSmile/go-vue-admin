@@ -29,3 +29,12 @@ export const deleteApiKey = (id) => request({ url: `/apikeys/${id}`, method: 'de
 export const listOperationLogs = (params) => request({ url: '/operation-logs', method: 'get', params })
 export const deleteOperationLog = (id) => request({ url: `/operation-logs/${id}`, method: 'delete' })
 export const clearOperationLogs = () => request({ url: '/operation-logs', method: 'delete' })
+
+export const listDictTypes = (params) => request({ url: '/dict-types', method: 'get', params })
+export const createDictType = (d) => request({ url: '/dict-types', method: 'post', data: d })
+export const updateDictType = (id, d) => request({ url: `/dict-types/${id}`, method: 'put', data: d })
+export const deleteDictType = (id) => request({ url: `/dict-types/${id}`, method: 'delete' })
+export const listDictData = (params) => request({ url: '/dict-data', method: 'get', params })
+export const createDictData = (d) => request({ url: '/dict-data', method: 'post', data: d })
+export const updateDictData = (id, d) => request({ url: `/dict-data/${id}`, method: 'put', data: d })
+export const deleteDictData = (id) => request({ url: `/dict-data/${id}`, method: 'delete' })

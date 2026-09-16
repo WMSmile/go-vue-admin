@@ -61,6 +61,10 @@ func Seed() {
 	oplog := createMenu(models.Menu{Name: "OperationLog", Title: "操作日志", Icon: "Document", Path: "oplog", Component: "system/oplog/index", Sort: 4, Type: models.MenuTypeMenu, Api: "/api/v1/operation-logs", Method: "GET", ParentID: sys.ID})
 	createMenu(models.Menu{Name: "OpLogDel", Title: "删除日志", Permission: "oplog:del", Api: "/api/v1/operation-logs/*", Method: "DELETE", Type: models.MenuTypeButton, ParentID: oplog.ID})
 	createMenu(models.Menu{Name: "OpLogClear", Title: "清空日志", Permission: "oplog:clear", Api: "/api/v1/operation-logs", Method: "DELETE", Type: models.MenuTypeButton, ParentID: oplog.ID})
+	dict := createMenu(models.Menu{Name: "Dict", Title: "字典管理", Icon: "Collection", Path: "dict", Component: "system/dict/index", Sort: 5, Type: models.MenuTypeMenu, Api: "/api/v1/dict-types", Method: "GET", ParentID: sys.ID})
+	createMenu(models.Menu{Name: "DictAdd", Title: "新增字典", Permission: "dict:add", Api: "/api/v1/dict-types", Method: "POST", Type: models.MenuTypeButton, ParentID: dict.ID})
+	createMenu(models.Menu{Name: "DictEdit", Title: "编辑字典", Permission: "dict:edit", Api: "/api/v1/dict-types/*", Method: "PUT", Type: models.MenuTypeButton, ParentID: dict.ID})
+	createMenu(models.Menu{Name: "DictDel", Title: "删除字典", Permission: "dict:del", Api: "/api/v1/dict-types/*", Method: "DELETE", Type: models.MenuTypeButton, ParentID: dict.ID})
 
 	// Dashboard: a top-level page shown directly after login
 	dash := createMenu(models.Menu{Name: "Dashboard", Title: "仪表盘", Icon: "DataBoard", Path: "/dashboard", Component: "monitor/dashboard/index", Sort: 0, Type: models.MenuTypeMenu, Api: "/api/v1/dashboard", Method: "GET", ParentID: 0})

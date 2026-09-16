@@ -21,7 +21,8 @@
 - ✅ **API Key 机制**：登录用户可在「个人中心 → API 密钥」中**自助生成** API Key，外部 **skill / 脚本 / 机器** 通过 `X-API-Key` 头调用接口（查询、新增、修改、删除等），复用所属用户的 Casbin 权限做双重校验
 - ✅ **操作日志**：中间件自动记录所有已鉴权请求（操作人、方法、接口、IP、状态码、耗时），管理员可在「系统管理 → 操作日志」查看、筛选与清空
 - ✅ **个人设置**：右上角头像下拉「设置」可切换主题（浅色 / 深色 / 跟随系统）
-- ⬜ 代码生成器、字典管理、定时任务（预留扩展位）
+- ✅ **字典管理**：维护字典类型与字典数据（枚举值），可供下拉、状态等场景复用
+- ⬜ 代码生成器、定时任务（预留扩展位）
 
 ## 目录结构
 
@@ -35,7 +36,7 @@ go-vue-admin/
 │   ├── db/                # GORM 初始化 + 自动迁移
 │   ├── casbin/            # Casbin Enforcer 初始化
 │   ├── global/            # 全局单例（DB / Enforcer / Config）
-│   ├── models/            # User / Role / Menu / ApiKey / OperationLog 模型
+│   ├── models/            # User / Role / Menu / ApiKey / OperationLog / DictType / DictData 模型
 │   ├── utils/             # JWT、密码、统一响应
 │   ├── middleware/        # JWT 鉴权、Casbin 鉴权、操作日志
 │   ├── controller/        # 登录、用户、角色、菜单、仪表盘、操作日志
@@ -203,6 +204,14 @@ curl -X DELETE http://localhost:8080/api/v1/users/2 -H "X-API-Key: gva_xxxx"
 | GET | `/api/v1/operation-logs` | 操作日志列表（支持筛选/分页） | 是 |
 | DELETE | `/api/v1/operation-logs/:id` | 删除单条日志 | 是 |
 | DELETE | `/api/v1/operation-logs` | 清空全部日志 | 是 |
+| GET | `/api/v1/dict-types` | 字典类型列表（支持筛选/分页） | 是 |
+| POST | `/api/v1/dict-types` | 新增字典类型 | 是 |
+| PUT | `/api/v1/dict-types/:id` | 更新字典类型 | 是 |
+| DELETE | `/api/v1/dict-types/:id` | 删除字典类型（级联删除其数据） | 是 |
+| GET | `/api/v1/dict-data` | 字典数据列表（按 typeId / typeCode 过滤） | 是 |
+| POST | `/api/v1/dict-data` | 新增字典数据 | 是 |
+| PUT | `/api/v1/dict-data/:id` | 更新字典数据 | 是 |
+| DELETE | `/api/v1/dict-data/:id` | 删除字典数据 | 是 |
 
 统一响应格式：
 
