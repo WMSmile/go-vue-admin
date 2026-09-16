@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="toolbar">
-      <el-button type="primary" @click="openDialog()">新增角色</el-button>
+      <el-button type="primary" v-permission="'role:add'" @click="openDialog()">新增角色</el-button>
     </div>
     <el-table :data="list" border stripe>
       <el-table-column prop="id" label="ID" width="80" />
@@ -10,8 +10,8 @@
       <el-table-column prop="description" label="描述" />
       <el-table-column label="操作" width="200">
         <template #default="{ row }">
-          <el-button size="small" @click="openAssign(row)">分配菜单</el-button>
-          <el-button size="small" type="danger" @click="remove(row)">删除</el-button>
+          <el-button size="small" v-permission="'role:assign'" @click="openAssign(row)">分配菜单</el-button>
+          <el-button size="small" type="danger" v-permission="'role:del'" @click="remove(row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>

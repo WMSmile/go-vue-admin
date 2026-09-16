@@ -22,7 +22,8 @@
 - ✅ **操作日志**：中间件自动记录所有已鉴权请求（操作人、方法、接口、IP、状态码、耗时），管理员可在「系统管理 → 操作日志」查看、筛选与清空
 - ✅ **个人设置**：右上角头像下拉「设置」可切换主题（浅色 / 深色 / 跟随系统）
 - ✅ **字典管理**：维护字典类型与字典数据（枚举值），可供下拉、状态等场景复用
-- ⬜ 代码生成器、定时任务（预留扩展位）
+- ✅ **定时任务**：内置无外部依赖的调度器，支持 HTTP / 函数两类任务，含启用/停用、手动执行、执行日志
+- ⬜ 代码生成器（预留扩展位）
 
 ## 目录结构
 
@@ -36,10 +37,11 @@ go-vue-admin/
 │   ├── db/                # GORM 初始化 + 自动迁移
 │   ├── casbin/            # Casbin Enforcer 初始化
 │   ├── global/            # 全局单例（DB / Enforcer / Config）
-│   ├── models/            # User / Role / Menu / ApiKey / OperationLog / DictType / DictData 模型
+│   ├── models/            # User / Role / Menu / ApiKey / OperationLog / DictType / DictData / Task / TaskLog 模型
 │   ├── utils/             # JWT、密码、统一响应
 │   ├── middleware/        # JWT 鉴权、Casbin 鉴权、操作日志
-│   ├── controller/        # 登录、用户、角色、菜单、仪表盘、操作日志
+│   ├── controller/        # 登录、用户、角色、菜单、仪表盘、操作日志、定时任务
+│   ├── task/              # 定时任务调度器（无外部依赖，解析标准 5 段 cron）
 │   ├── router/            # 路由注册
 │   └── initialize/        # 种子数据（默认角色/管理员/菜单/策略）
 ├── web/                   # 前端（Vue3）
@@ -212,6 +214,13 @@ curl -X DELETE http://localhost:8080/api/v1/users/2 -H "X-API-Key: gva_xxxx"
 | POST | `/api/v1/dict-data` | 新增字典数据 | 是 |
 | PUT | `/api/v1/dict-data/:id` | 更新字典数据 | 是 |
 | DELETE | `/api/v1/dict-data/:id` | 删除字典数据 | 是 |
+| GET | `/api/v1/tasks` | 定时任务列表（支持筛选/分页） | 是 |
+| POST | `/api/v1/tasks` | 新增定时任务 | 是 |
+| PUT | `/api/v1/tasks/:id` | 更新定时任务 | 是 |
+| DELETE | `/api/v1/tasks/:id` | 删除定时任务（含其日志） | 是 |
+| POST | `/api/v1/tasks/:id/toggle` | 启用/停用任务 | 是 |
+| POST | `/api/v1/tasks/:id/run` | 手动执行一次 | 是 |
+| GET | `/api/v1/task-logs` | 任务执行日志列表 | 是 |
 
 统一响应格式：
 

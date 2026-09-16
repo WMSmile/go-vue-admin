@@ -10,6 +10,7 @@ import (
 	"go-vue-admin/internal/global"
 	"go-vue-admin/internal/initialize"
 	"go-vue-admin/internal/router"
+	"go-vue-admin/internal/task"
 )
 
 func main() {
@@ -26,6 +27,8 @@ func main() {
 		log.Fatalf("init casbin: %v", err)
 	}
 	initialize.Seed()
+
+	task.Init()
 
 	r := router.SetupRouter()
 	addr := ":" + strconv.Itoa(cfg.Server.Port)

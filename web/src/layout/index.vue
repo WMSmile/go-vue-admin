@@ -26,6 +26,7 @@
           </template>
         </el-dropdown>
       </el-header>
+      <TagsView />
       <el-main>
         <router-view />
       </el-main>
@@ -38,6 +39,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/store/user'
 import Sidebar from './components/Sidebar.vue'
+import TagsView from './components/TagsView.vue'
 
 const router = useRouter()
 const userStore = useUserStore()

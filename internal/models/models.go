@@ -112,3 +112,30 @@ type DictData struct {
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }
+
+// Task is a scheduled job (cron). Type 1 = HTTP request, Type 2 = built-in func.
+type Task struct {
+	ID        uint       `gorm:"primaryKey" json:"id"`
+	Name      string     `gorm:"size:128;not null" json:"name"`
+	Type      int        `gorm:"default:1" json:"type"` // 1 http, 2 func
+	Spec      string     `gorm:"size:64" json:"spec"`   // 5-field cron
+	Url       string     `gorm:"size:255" json:"url"`
+	Method    string     `gorm:"size:16" json:"method"`
+	Handler   string     `gorm:"size:64" json:"handler"`
+	Status    int        `gorm:"default:1" json:"status"` // 1 enabled, 0 disabled
+	Remark    string     `gorm:"size:255" json:"remark"`
+	LastRunAt *time.Time `json:"lastRunAt"`
+	CreatedAt time.Time  `json:"createdAt"`
+	UpdatedAt time.Time  `json:"updatedAt"`
+}
+
+// TaskLog records the result of a single task execution.
+type TaskLog struct {
+	ID         uint      `gorm:"primaryKey" json:"id"`
+	TaskID     uint      `gorm:"index" json:"taskId"`
+	TaskName   string    `gorm:"size:128" json:"taskName"`
+	Status     int       `gorm:"default:1" json:"status"` // 1 success, 0 fail
+	Output     string    `gorm:"type:text" json:"output"`
+	DurationMs int64     `json:"durationMs"`
+	CreatedAt  time.Time `json:"createdAt"`
+}

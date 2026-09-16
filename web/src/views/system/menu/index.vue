@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="toolbar">
-      <el-button type="primary" @click="openDialog()">新增菜单</el-button>
+      <el-button type="primary" v-permission="'menu:add'" @click="openDialog()">新增菜单</el-button>
     </div>
     <el-table :data="list" border stripe row-key="id" :tree-props="{ children: 'children' }" default-expand-all>
       <el-table-column prop="title" label="名称" />
@@ -26,8 +26,8 @@
       <el-table-column prop="sort" label="排序" width="80" />
       <el-table-column label="操作" width="160">
         <template #default="{ row }">
-          <el-button size="small" @click="openDialog(row)">编辑</el-button>
-          <el-button size="small" type="danger" @click="remove(row)">删除</el-button>
+          <el-button size="small" v-permission="'menu:edit'" @click="openDialog(row)">编辑</el-button>
+          <el-button size="small" type="danger" v-permission="'menu:del'" @click="remove(row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>

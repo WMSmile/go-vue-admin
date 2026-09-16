@@ -38,3 +38,11 @@ export const listDictData = (params) => request({ url: '/dict-data', method: 'ge
 export const createDictData = (d) => request({ url: '/dict-data', method: 'post', data: d })
 export const updateDictData = (id, d) => request({ url: `/dict-data/${id}`, method: 'put', data: d })
 export const deleteDictData = (id) => request({ url: `/dict-data/${id}`, method: 'delete' })
+
+export const listTasks = (params) => request({ url: '/tasks', method: 'get', params })
+export const createTask = (d) => request({ url: '/tasks', method: 'post', data: d })
+export const updateTask = (id, d) => request({ url: `/tasks/${id}`, method: 'put', data: d })
+export const deleteTask = (id) => request({ url: `/tasks/${id}`, method: 'delete' })
+export const toggleTask = (id) => request({ url: `/tasks/${id}/toggle`, method: 'post' })
+export const runTask = (id) => request({ url: `/tasks/${id}/run`, method: 'post' })
+export const listTaskLogs = (params) => request({ url: '/task-logs', method: 'get', params })
