@@ -62,7 +62,10 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="CRON">
-          <el-input v-model="form.spec" placeholder="如 0 0 * * * （每天0点）" />
+          <div class="cron-row">
+            <el-input v-model="form.spec" placeholder="如 0 0 * * * （每天0点）" readonly />
+            <el-button @click="cronVisible = true">生成表达式</el-button>
+          </div>
         </el-form-item>
         <template v-if="form.type === 1">
           <el-form-item label="方法">
@@ -123,6 +126,10 @@
         />
       </div>
     </el-dialog>
+
+    <el-dialog v-model="cronVisible" title="Cron 表达式生成器" width="760px" append-to-body>
+      <Crontab :expression="form.spec" @fill="onCronFill" @cancel="cronVisible = false" />
+    </el-dialog>
   </div>
 </template>
 
@@ -132,6 +139,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   listTasks, createTask, updateTask, deleteTask, toggleTask, runTask, listTaskLogs
 } from '@/api'
+import Crontab from '@/components/Crontab/index.vue'
 
 const list = ref([])
 const total = ref(0)
@@ -139,6 +147,7 @@ const loading = ref(false)
 const filters = reactive({ page: 1, pageSize: 10, name: '' })
 
 const visible = ref(false)
+const cronVisible = ref(false)
 const form = reactive({ id: null, name: '', type: 1, spec: '', method: 'GET', url: '', handler: '', status: 1, remark: '' })
 
 const logsVisible = ref(false)
@@ -171,6 +180,10 @@ function onPage(p) { filters.page = p; load() }
 
 function resetForm() {
   Object.assign(form, { id: null, name: '', type: 1, spec: '', method: 'GET', url: '', handler: '', status: 1, remark: '' })
+}
+function onCronFill(expr) {
+  form.spec = expr
+  cronVisible.value = false
 }
 function openDialog(row) {
   if (row) Object.assign(form, { ...row })
@@ -234,5 +247,7 @@ onMounted(load)
 <style scoped>
 .toolbar { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
 .pager { margin-top: 12px; display: flex; justify-content: flex-end; }
+.cron-row { display: flex; gap: 8px; width: 100%; }
+.cron-row .el-input { flex: 1; }
 .log-out { margin: 0; white-space: pre-wrap; word-break: break-all; font-size: 12px; max-height: 120px; overflow: auto; }
 </style>
