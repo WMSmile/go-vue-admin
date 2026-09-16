@@ -51,18 +51,18 @@ func Seed() {
 		m.ID = exist.ID
 		return m
 	}
-	sys := createMenu(models.Menu{Name: "System", Title: "系统管理", Icon: "setting", Path: "/system", Component: "Layout", Sort: 1, Type: models.MenuTypeCatalog})
-	userMenu := createMenu(models.Menu{Name: "User", Title: "用户管理", Icon: "user", Path: "user", Component: "system/user/index", Sort: 1, Type: models.MenuTypeMenu, Api: "/api/v1/users", Method: "GET", ParentID: sys.ID})
+	sys := createMenu(models.Menu{Name: "System", Title: "系统管理", Icon: "Setting", Path: "/system", Component: "Layout", Sort: 1, Type: models.MenuTypeCatalog})
+	userMenu := createMenu(models.Menu{Name: "User", Title: "用户管理", Icon: "User", Path: "user", Component: "system/user/index", Sort: 1, Type: models.MenuTypeMenu, Api: "/api/v1/users", Method: "GET", ParentID: sys.ID})
 	createMenu(models.Menu{Name: "UserAdd", Title: "新增用户", Permission: "user:add", Api: "/api/v1/users", Method: "POST", Type: models.MenuTypeButton, ParentID: userMenu.ID})
 	createMenu(models.Menu{Name: "UserEdit", Title: "编辑用户", Permission: "user:edit", Api: "/api/v1/users/*", Method: "PUT", Type: models.MenuTypeButton, ParentID: userMenu.ID})
 	createMenu(models.Menu{Name: "UserDel", Title: "删除用户", Permission: "user:del", Api: "/api/v1/users/*", Method: "DELETE", Type: models.MenuTypeButton, ParentID: userMenu.ID})
-	createMenu(models.Menu{Name: "Role", Title: "角色管理", Icon: "role", Path: "role", Component: "system/role/index", Sort: 2, Type: models.MenuTypeMenu, Api: "/api/v1/roles", Method: "GET", ParentID: sys.ID})
-	createMenu(models.Menu{Name: "Menu", Title: "菜单管理", Icon: "menu", Path: "menu", Component: "system/menu/index", Sort: 3, Type: models.MenuTypeMenu, Api: "/api/v1/menus", Method: "GET", ParentID: sys.ID})
+	createMenu(models.Menu{Name: "Role", Title: "角色管理", Icon: "Avatar", Path: "role", Component: "system/role/index", Sort: 2, Type: models.MenuTypeMenu, Api: "/api/v1/roles", Method: "GET", ParentID: sys.ID})
+	createMenu(models.Menu{Name: "Menu", Title: "菜单管理", Icon: "Menu", Path: "menu", Component: "system/menu/index", Sort: 3, Type: models.MenuTypeMenu, Api: "/api/v1/menus", Method: "GET", ParentID: sys.ID})
 
 	// Dashboard: a top-level page shown directly after login
-	dash := createMenu(models.Menu{Name: "Dashboard", Title: "仪表盘", Icon: "dashboard", Path: "/dashboard", Component: "monitor/dashboard/index", Sort: 0, Type: models.MenuTypeMenu, Api: "/api/v1/dashboard", Method: "GET", ParentID: 0})
+	dash := createMenu(models.Menu{Name: "Dashboard", Title: "仪表盘", Icon: "DataBoard", Path: "/dashboard", Component: "monitor/dashboard/index", Sort: 0, Type: models.MenuTypeMenu, Api: "/api/v1/dashboard", Method: "GET", ParentID: 0})
 	// Monitor: a catalog container for other monitoring functions (logs, online users, etc.)
-	mon := createMenu(models.Menu{Name: "Monitor", Title: "系统监控", Icon: "monitor", Path: "/monitor", Component: "Layout", Sort: 3, Type: models.MenuTypeCatalog})
+	mon := createMenu(models.Menu{Name: "Monitor", Title: "系统监控", Icon: "Monitor", Path: "/monitor", Component: "Layout", Sort: 3, Type: models.MenuTypeCatalog})
 
 	// link menus to admin
 	var allMenus []models.Menu

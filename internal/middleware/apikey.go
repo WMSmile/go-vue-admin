@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"net/http"
 	"time"
 
 	"go-vue-admin/internal/global"
@@ -28,6 +29,24 @@ func APIKeyAuth() gin.HandlerFunc {
 			utils.Unauthorized(c, "invalid api key")
 			c.Abort()
 			return
+		}
+
+		// expiry check
+		if ak.ExpiresAt != nil && ak.ExpiresAt.Before(time.Now()) {
+			utils.Forbidden(c, "api key expired")
+			c.Abort()
+			return
+		}
+
+		// scope check: readonly keys may only perform safe (read) methods
+		if ak.Scope == "readonly" {
+			switch c.Request.Method {
+			case http.MethodGet, http.MethodHead, http.MethodOptions:
+			default:
+				utils.Forbidden(c, "该密钥仅允许只读操作 (GET)")
+				c.Abort()
+				return
+			}
 		}
 
 		roles := make([]string, 0, len(ak.User.Roles))

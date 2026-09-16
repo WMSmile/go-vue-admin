@@ -21,3 +21,7 @@ export const listMenus = () => request({ url: '/menus' })
 export const createMenu = (d) => request({ url: '/menus', method: 'post', data: d })
 export const updateMenu = (id, d) => request({ url: `/menus/${id}`, method: 'put', data: d })
 export const deleteMenu = (id) => request({ url: `/menus/${id}`, method: 'delete' })
+
+export const listApiKeys = () => request({ url: '/apikeys' })
+export const createApiKey = (d) => request({ url: '/apikeys', method: 'post', data: d })
+export const deleteApiKey = (id) => request({ url: `/apikeys/${id}`, method: 'delete' })

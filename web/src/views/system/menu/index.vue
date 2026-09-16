@@ -12,6 +12,12 @@
           <el-tag v-else type="warning">按钮</el-tag>
         </template>
       </el-table-column>
+      <el-table-column label="图标" width="70">
+        <template #default="{ row }">
+          <el-icon v-if="row.icon"><component :is="row.icon" /></el-icon>
+          <span v-else>-</span>
+        </template>
+      </el-table-column>
       <el-table-column prop="path" label="路径" />
       <el-table-column prop="component" label="组件" />
       <el-table-column prop="permission" label="权限标识" />
@@ -47,7 +53,25 @@
           <el-input v-model="form.name" />
         </el-form-item>
         <el-form-item label="图标">
-          <el-input v-model="form.icon" />
+          <el-popover :width="320" trigger="click" v-model:visible="iconPickerVisible">
+            <template #reference>
+              <el-input v-model="form.icon" placeholder="点击选择图标或输入组件名">
+                <template #prefix>
+                  <el-icon v-if="form.icon"><component :is="form.icon" /></el-icon>
+                  <el-icon v-else><Picture /></el-icon>
+                </template>
+              </el-input>
+            </template>
+            <div class="icon-picker">
+              <el-input v-model="iconSearch" placeholder="搜索图标" size="small" clearable />
+              <div class="icon-grid">
+                <div v-for="n in filteredIcons" :key="n" class="icon-cell" @click="pickIcon(n)">
+                  <el-icon><component :is="n" /></el-icon>
+                </div>
+              </div>
+              <div v-if="!filteredIcons.length" class="icon-empty">无匹配图标</div>
+            </div>
+          </el-popover>
         </el-form-item>
         <el-form-item label="路径">
           <el-input v-model="form.path" placeholder="目录/菜单为路由路径，如 /system 或 user" />
@@ -91,6 +115,7 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { listMenus, createMenu, updateMenu, deleteMenu } from '@/api'
+import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 
 const list = ref([])
 const all = ref([])
@@ -101,6 +126,18 @@ const form = reactive({
 })
 
 const parentOptions = computed(() => all.value.filter((m) => m.type !== 3 && m.id !== form.id))
+
+const iconSearch = ref('')
+const iconPickerVisible = ref(false)
+const iconNames = Object.keys(ElementPlusIconsVue)
+const filteredIcons = computed(() => {
+  const q = iconSearch.value.trim().toLowerCase()
+  return q ? iconNames.filter((n) => n.toLowerCase().includes(q)) : iconNames
+})
+function pickIcon(name) {
+  form.icon = name
+  iconPickerVisible.value = false
+}
 
 function toTree(flat) {
   const map = {}
@@ -153,4 +190,9 @@ onMounted(load)
 
 <style scoped>
 .toolbar { margin-bottom: 12px; }
+.icon-picker { display: flex; flex-direction: column; gap: 8px; }
+.icon-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; max-height: 240px; overflow-y: auto; }
+.icon-cell { display: flex; align-items: center; justify-content: center; height: 32px; border-radius: 4px; cursor: pointer; font-size: 18px; }
+.icon-cell:hover { background: var(--el-fill-color-light); }
+.icon-empty { text-align: center; color: #999; padding: 12px; }
 </style>

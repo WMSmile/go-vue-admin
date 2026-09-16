@@ -1,34 +1,42 @@
 <template>
   <div class="profile">
-    <el-row :gutter="16">
-      <el-col :span="8">
-        <el-card>
-          <div class="avatar-wrap">
-            <el-avatar :size="80">{{ initial }}</el-avatar>
-            <h3>{{ user.username }}</h3>
-            <p class="role">{{ roleText }}</p>
-          </div>
-          <el-descriptions :column="1" border>
-            <el-descriptions-item label="昵称">{{ user.nickname || '-' }}</el-descriptions-item>
-            <el-descriptions-item label="邮箱">{{ user.email || '-' }}</el-descriptions-item>
-            <el-descriptions-item label="手机">{{ user.phone || '-' }}</el-descriptions-item>
-            <el-descriptions-item label="状态">
-              <el-tag :type="user.status === 1 ? 'success' : 'danger'">
-                {{ user.status === 1 ? '启用' : '禁用' }}
-              </el-tag>
-            </el-descriptions-item>
-          </el-descriptions>
-          <el-button class="mt" type="primary" @click="openEdit">编辑资料</el-button>
-        </el-card>
-      </el-col>
-      <el-col :span="16">
-        <el-card>
-          <h3>安全设置</h3>
-          <p class="tip">定期修改密码有助于保护账户安全。</p>
-          <el-button @click="openPwd">修改密码</el-button>
-        </el-card>
-      </el-col>
-    </el-row>
+    <el-tabs v-model="active">
+      <el-tab-pane label="基本资料" name="profile">
+        <el-row :gutter="16">
+          <el-col :span="8">
+            <el-card>
+              <div class="avatar-wrap">
+                <el-avatar :size="80">{{ initial }}</el-avatar>
+                <h3>{{ user.username }}</h3>
+                <p class="role">{{ roleText }}</p>
+              </div>
+              <el-descriptions :column="1" border>
+                <el-descriptions-item label="昵称">{{ user.nickname || '-' }}</el-descriptions-item>
+                <el-descriptions-item label="邮箱">{{ user.email || '-' }}</el-descriptions-item>
+                <el-descriptions-item label="手机">{{ user.phone || '-' }}</el-descriptions-item>
+                <el-descriptions-item label="状态">
+                  <el-tag :type="user.status === 1 ? 'success' : 'danger'">
+                    {{ user.status === 1 ? '启用' : '禁用' }}
+                  </el-tag>
+                </el-descriptions-item>
+              </el-descriptions>
+              <el-button class="mt" type="primary" @click="openEdit">编辑资料</el-button>
+            </el-card>
+          </el-col>
+          <el-col :span="16">
+            <el-card>
+              <h3>安全设置</h3>
+              <p class="tip">定期修改密码有助于保护账户安全。</p>
+              <el-button @click="openPwd">修改密码</el-button>
+            </el-card>
+          </el-col>
+        </el-row>
+      </el-tab-pane>
+
+      <el-tab-pane label="API 密钥" name="apikey">
+        <ApiKeyPanel />
+      </el-tab-pane>
+    </el-tabs>
 
     <el-dialog v-model="editVisible" title="编辑资料" width="460px">
       <el-form :model="editForm" label-width="80px">
@@ -61,12 +69,14 @@ import { computed, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useUserStore } from '@/store/user'
 import { updateUser } from '@/api'
+import ApiKeyPanel from './ApiKeyPanel.vue'
 
 const store = useUserStore()
 const user = computed(() => store.userInfo || {})
 const initial = computed(() => (user.value.username || '?').charAt(0).toUpperCase())
 const roleText = computed(() => (user.value.roles || []).map((r) => r.name || r.keyword).join('、') || '-')
 
+const active = ref('profile')
 const editVisible = ref(false)
 const pwdVisible = ref(false)
 const editForm = reactive({ nickname: '', email: '', phone: '' })

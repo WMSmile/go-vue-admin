@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { login as loginApi } from '@/api'
+import { login as loginApi, getMenuTree } from '@/api'
 import router from '@/router'
 import RouteView from '@/layout/RouteView.vue'
 
@@ -96,6 +96,18 @@ export const useUserStore = defineStore('user', {
         this.userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null')
         this.roles = (this.userInfo?.roles || []).map((r) => r.keyword)
         genRoutes(menus).forEach((r) => router.addRoute('Layout', r))
+      }
+      // refresh the menu tree from the server so icon/structure changes
+      // (e.g. edited in 菜单管理) take effect without forcing a re-login.
+      if (token) {
+        getMenuTree()
+          .then((fresh) => {
+            if (Array.isArray(fresh) && fresh.length) {
+              this.menus = fresh
+              localStorage.setItem('menus', JSON.stringify(fresh))
+            }
+          })
+          .catch(() => {})
       }
     },
     logout() {

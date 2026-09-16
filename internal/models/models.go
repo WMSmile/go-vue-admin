@@ -67,6 +67,8 @@ type ApiKey struct {
 	Name       string    `gorm:"size:64" json:"name"`
 	Key        string    `gorm:"size:80;uniqueIndex;not null" json:"-"`
 	Status     int       `gorm:"default:1" json:"status"` // 1 enabled, 0 disabled
+	Scope      string    `gorm:"size:20;default:'all'" json:"scope"` // all | readonly
+	ExpiresAt  *time.Time `json:"expiresAt"` // nil = never expire
 	LastUsedAt *time.Time `json:"lastUsedAt"`
 	CreatedAt  time.Time `json:"createdAt"`
 	UpdatedAt  time.Time `json:"updatedAt"`

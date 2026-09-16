@@ -1,11 +1,15 @@
 <template>
   <template v-for="item in items" :key="item.id">
     <el-sub-menu v-if="isCatalog(item)" :index="resolve(item)">
-      <template #title>{{ item.title }}</template>
+      <template #title>
+        <el-icon v-if="item.icon"><component :is="item.icon" /></el-icon>
+        <span>{{ item.title }}</span>
+      </template>
       <sidebar-menu :items="item.children || []" :parent="resolve(item)" />
     </el-sub-menu>
     <el-menu-item v-else-if="item.type === 2" :index="resolve(item)">
-      {{ item.title }}
+      <el-icon v-if="item.icon"><component :is="item.icon" /></el-icon>
+      <span>{{ item.title }}</span>
     </el-menu-item>
   </template>
 </template>
