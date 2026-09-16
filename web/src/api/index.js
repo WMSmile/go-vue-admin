@@ -25,3 +25,7 @@ export const deleteMenu = (id) => request({ url: `/menus/${id}`, method: 'delete
 export const listApiKeys = () => request({ url: '/apikeys' })
 export const createApiKey = (d) => request({ url: '/apikeys', method: 'post', data: d })
 export const deleteApiKey = (id) => request({ url: `/apikeys/${id}`, method: 'delete' })
+
+export const listOperationLogs = (params) => request({ url: '/operation-logs', method: 'get', params })
+export const deleteOperationLog = (id) => request({ url: `/operation-logs/${id}`, method: 'delete' })
+export const clearOperationLogs = () => request({ url: '/operation-logs', method: 'delete' })

@@ -19,7 +19,9 @@
 - ✅ 用户 / 角色 / 菜单（目录、菜单、按钮）管理
 - ✅ 角色分配菜单后**自动同步 Casbin 策略**（由菜单的 `api` + `method` 生成）
 - ✅ **API Key 机制**：登录用户可在「个人中心 → API 密钥」中**自助生成** API Key，外部 **skill / 脚本 / 机器** 通过 `X-API-Key` 头调用接口（查询、新增、修改、删除等），复用所属用户的 Casbin 权限做双重校验
-- ⬜ 代码生成器、操作日志、字典、定时任务（预留扩展位）
+- ✅ **操作日志**：中间件自动记录所有已鉴权请求（操作人、方法、接口、IP、状态码、耗时），管理员可在「系统管理 → 操作日志」查看、筛选与清空
+- ✅ **个人设置**：右上角头像下拉「设置」可切换主题（浅色 / 深色 / 跟随系统）
+- ⬜ 代码生成器、字典管理、定时任务（预留扩展位）
 
 ## 目录结构
 
@@ -33,10 +35,10 @@ go-vue-admin/
 │   ├── db/                # GORM 初始化 + 自动迁移
 │   ├── casbin/            # Casbin Enforcer 初始化
 │   ├── global/            # 全局单例（DB / Enforcer / Config）
-│   ├── models/            # User / Role / Menu 模型
+│   ├── models/            # User / Role / Menu / ApiKey / OperationLog 模型
 │   ├── utils/             # JWT、密码、统一响应
-│   ├── middleware/        # JWT 鉴权、Casbin 鉴权
-│   ├── controller/        # 登录、用户、角色、菜单、仪表盘
+│   ├── middleware/        # JWT 鉴权、Casbin 鉴权、操作日志
+│   ├── controller/        # 登录、用户、角色、菜单、仪表盘、操作日志
 │   ├── router/            # 路由注册
 │   └── initialize/        # 种子数据（默认角色/管理员/菜单/策略）
 ├── web/                   # 前端（Vue3）
@@ -164,6 +166,23 @@ curl -X DELETE http://localhost:8080/api/v1/users/2 -H "X-API-Key: gva_xxxx"
 - **过期时间 `expiresAt`**：创建时可传入 `YYYY-MM-DD`，到期后调用返回 403；留空则永不过期。
 - 范围与过期时间都可在「个人中心 → API 密钥」创建时设置，列表中展示范围、过期时间及是否已过期。
 
+## 操作日志
+
+系统通过 `OperationLog` 中间件**自动记录每一次已通过鉴权的接口调用**，用于审计与排障。日志记录在响应返回后落库，并自动跳过高频/框架类接口（`/menus/tree`、`/auth/me`、`/dashboard`、操作日志自身列表）以避免刷屏。
+
+记录的字段：`操作人`、`请求方法`、`接口路径`、`IP`、`状态码`、`耗时(ms)`、`操作时间`。
+
+### 查看与管理
+使用管理员登录后，进入「系统管理 → 操作日志」：
+- 按 **方法 / 操作人 / 接口路径** 筛选；
+- 支持分页查看；
+- 可单条删除或一键清空。
+
+### 接口
+- 列表：`GET /api/v1/operation-logs`（支持 `page`、`pageSize`、`method`、`username`、`path` 参数）
+- 删除单条：`DELETE /api/v1/operation-logs/:id`
+- 清空全部：`DELETE /api/v1/operation-logs`
+
 ## 接口一览
 
 | 方法 | 路径 | 说明 | 鉴权 |
@@ -181,6 +200,9 @@ curl -X DELETE http://localhost:8080/api/v1/users/2 -H "X-API-Key: gva_xxxx"
 | GET | `/api/v1/apikeys` | 当前用户的 API Key 列表 | 是 |
 | POST | `/api/v1/apikeys` | 创建 API Key（原始密钥仅返回一次） | 是 |
 | DELETE | `/api/v1/apikeys/:id` | 吊销 API Key | 是 |
+| GET | `/api/v1/operation-logs` | 操作日志列表（支持筛选/分页） | 是 |
+| DELETE | `/api/v1/operation-logs/:id` | 删除单条日志 | 是 |
+| DELETE | `/api/v1/operation-logs` | 清空全部日志 | 是 |
 
 统一响应格式：
 
@@ -199,4 +221,4 @@ curl -X DELETE http://localhost:8080/api/v1/users/2 -H "X-API-Key: gva_xxxx"
 
 ## TODO（预留扩展）
 
-代码生成器、操作日志、字典管理、定时任务等内置模块可在 `internal/controller` 与 `web/src/views` 中按现有 CRUD 模式继续扩展。
+代码生成器、字典管理、定时任务等内置模块可在 `internal/controller` 与 `web/src/views` 中按现有 CRUD 模式继续扩展。

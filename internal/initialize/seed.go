@@ -58,6 +58,9 @@ func Seed() {
 	createMenu(models.Menu{Name: "UserDel", Title: "删除用户", Permission: "user:del", Api: "/api/v1/users/*", Method: "DELETE", Type: models.MenuTypeButton, ParentID: userMenu.ID})
 	createMenu(models.Menu{Name: "Role", Title: "角色管理", Icon: "Avatar", Path: "role", Component: "system/role/index", Sort: 2, Type: models.MenuTypeMenu, Api: "/api/v1/roles", Method: "GET", ParentID: sys.ID})
 	createMenu(models.Menu{Name: "Menu", Title: "菜单管理", Icon: "Menu", Path: "menu", Component: "system/menu/index", Sort: 3, Type: models.MenuTypeMenu, Api: "/api/v1/menus", Method: "GET", ParentID: sys.ID})
+	oplog := createMenu(models.Menu{Name: "OperationLog", Title: "操作日志", Icon: "Document", Path: "oplog", Component: "system/oplog/index", Sort: 4, Type: models.MenuTypeMenu, Api: "/api/v1/operation-logs", Method: "GET", ParentID: sys.ID})
+	createMenu(models.Menu{Name: "OpLogDel", Title: "删除日志", Permission: "oplog:del", Api: "/api/v1/operation-logs/*", Method: "DELETE", Type: models.MenuTypeButton, ParentID: oplog.ID})
+	createMenu(models.Menu{Name: "OpLogClear", Title: "清空日志", Permission: "oplog:clear", Api: "/api/v1/operation-logs", Method: "DELETE", Type: models.MenuTypeButton, ParentID: oplog.ID})
 
 	// Dashboard: a top-level page shown directly after login
 	dash := createMenu(models.Menu{Name: "Dashboard", Title: "仪表盘", Icon: "DataBoard", Path: "/dashboard", Component: "monitor/dashboard/index", Sort: 0, Type: models.MenuTypeMenu, Api: "/api/v1/dashboard", Method: "GET", ParentID: 0})

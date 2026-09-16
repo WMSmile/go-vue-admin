@@ -73,3 +73,17 @@ type ApiKey struct {
 	CreatedAt  time.Time `json:"createdAt"`
 	UpdatedAt  time.Time `json:"updatedAt"`
 }
+
+// OperationLog records every authenticated API request for audit purposes.
+type OperationLog struct {
+	ID        uint      `gorm:"primaryKey" json:"id"`
+	UserID    uint      `gorm:"index" json:"userId"`
+	Username  string    `gorm:"size:64;index" json:"username"`
+	Method    string    `gorm:"size:16" json:"method"`
+	Path      string    `gorm:"size:255;index" json:"path"`
+	Ip        string    `gorm:"size:64" json:"ip"`
+	UserAgent string    `gorm:"size:255" json:"userAgent"`
+	Status    int       `json:"status"`
+	Latency   int64     `json:"latency"` // milliseconds
+	CreatedAt time.Time `json:"createdAt"`
+}

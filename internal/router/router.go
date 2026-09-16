@@ -34,7 +34,7 @@ func SetupRouter() *gin.Engine {
 
 	// protected (API-Key or JWT + Casbin double check)
 	auth := api.Group("")
-	auth.Use(middleware.APIKeyAuth(), middleware.CasbinAuth())
+	auth.Use(middleware.APIKeyAuth(), middleware.CasbinAuth(), middleware.OperationLog())
 	{
 		auth.GET("/menus/tree", controller.MenuTree)
 		auth.GET("/auth/me", controller.Me)
@@ -57,6 +57,10 @@ func SetupRouter() *gin.Engine {
 		auth.GET("/apikeys", controller.ListApiKeys)
 		auth.POST("/apikeys", controller.CreateApiKey)
 		auth.DELETE("/apikeys/:id", controller.DeleteApiKey)
+
+		auth.GET("/operation-logs", controller.ListOperationLogs)
+		auth.DELETE("/operation-logs/:id", controller.DeleteOperationLog)
+		auth.DELETE("/operation-logs", controller.ClearOperationLogs)
 		auth.POST("/menus", controller.CreateMenu)
 		auth.PUT("/menus/:id", controller.UpdateMenu)
 		auth.DELETE("/menus/:id", controller.DeleteMenu)
